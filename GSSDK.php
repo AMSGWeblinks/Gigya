@@ -182,9 +182,17 @@ class GSRequest {
 		$protocol = $useHTTPS || empty($secret) ? "https" : "http";
 		$resourceURI = $protocol."://".$domain.$path;
 		
-		//UTC timestamp.
-		$timestamp = (string) time();
-		
+                                   if ($params->getString('timestamp') != '')
+                                   {
+                                     $srv_ts = intval(time());
+                                     $cli_ts = intval($params->getString('timestamp'));
+                                     $timestamp = ($srv_ts < $cli_ts) ? (string) ($srv_ts + ($cli_ts - $srv_ts)) : (string) ($srv_ts - ($srv_ts - $cli_ts));
+                                   }
+                                   else
+                                   {
+                                     $timestamp = (string) time();
+                                   }
+                                   
 		//timestamp in milliseconds
 		$nonce  = (string)SigUtils::currentTimeMillis();
 		$httpMethod = "POST";
